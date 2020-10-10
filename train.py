@@ -23,7 +23,8 @@ class TrainModule(object):
         torch.manual_seed(317)
         self.dataset = dataset
         self.dataset_phase = {'dota': ['train'],
-                              'hrsc': ['train', 'test']}
+                              'hrsc': ['train', 'test'],
+                              'rocket': ['train', 'test']}
         self.num_classes = num_classes
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = model
@@ -112,6 +113,8 @@ class TrainModule(object):
                                                            pin_memory=True,
                                                            drop_last=True,
                                                            collate_fn=collater)
+        if os.path.exists(args.resume):
+            self.model, self.optimizer, start_epoch = self.load_model(self.model, self.optimizer, args.resume, strict=True)
 
         print('Starting training...')
         train_loss = []
@@ -123,20 +126,20 @@ class TrainModule(object):
                                         data_loader=dsets_loader['train'],
                                         criterion=criterion)
             train_loss.append(epoch_loss)
-            self.scheduler.step(epoch)
+            self.scheduler.step()
 
             np.savetxt(os.path.join(save_path, 'train_loss.txt'), train_loss, fmt='%.6f')
 
-            if epoch % 5 == 0 or epoch > 20:
+            if epoch % 5 == 0:
                 self.save_model(os.path.join(save_path, 'model_{}.pth'.format(epoch)),
                                 epoch,
                                 self.model,
                                 self.optimizer)
 
-            if 'test' in self.dataset_phase[args.dataset] and epoch%5==0:
-                mAP = self.dec_eval(args, dsets['test'])
-                ap_list.append(mAP)
-                np.savetxt(os.path.join(save_path, 'ap_list.txt'), ap_list, fmt='%.6f')
+            # if 'test' in self.dataset_phase[args.dataset] and epoch%5==0:
+            #     mAP = self.dec_eval(args, dsets['test'])
+            #     ap_list.append(mAP)
+            #     np.savetxt(os.path.join(save_path, 'ap_list.txt'), ap_list, fmt='%.6f')
 
             self.save_model(os.path.join(save_path, 'model_last.pth'),
                             epoch,

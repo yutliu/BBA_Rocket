@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 import sys
-from .DOTA_devkit.hrsc_evaluation_task1 import voc_eval
+# from .DOTA_devkit.hrsc_evaluation_task1 import voc_eval
 
 
 if sys.version_info[0] == 2:

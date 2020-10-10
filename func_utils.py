@@ -91,11 +91,16 @@ def write_results(args,
         if print_ps:
             print('testing {}/{} data {}'.format(index+1, len(dsets), img_id))
 
-    for cat in dsets.category:
+    result_txt = os.path.join(result_path, '科目四_南信大+华航队.txt')
+    if os.path.exists(result_txt):
+        os.remove(result_txt)
+    for i, cat in enumerate(dsets.category):
         if cat == 'background':
             continue
-        with open(os.path.join(result_path, 'Task1_{}.txt'.format(cat)), 'w') as f:
+        with open(result_txt, 'a+') as f:
             for img_id in results[cat]:
+                img_name = img_id + '.tif'
+                class_id = i + 1
                 for pt in results[cat][img_id]:
-                    f.write('{} {:.12f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.format(
-                        img_id, pt[8], pt[0], pt[1], pt[2], pt[3], pt[4], pt[5], pt[6], pt[7]))
+                    f.write('{} {} {:.2f} {:.0f} {:.0f} {:.0f} {:.0f} {:.0f} {:.0f} {:.0f} {:.0f}\n'.format(
+                        img_name, class_id, pt[8], pt[0], pt[1], pt[2], pt[3], pt[4], pt[5], pt[6], pt[7]))
